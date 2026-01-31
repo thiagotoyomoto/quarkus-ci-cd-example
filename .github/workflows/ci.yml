@@ -12,14 +12,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      # 1. Official Action to check out code
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      # 2. Official Action to set up GraalVM/Mandrel
+      # This provides the 'native-image' tool required by Quarkus
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
         with:
-          java-version: 21
-          distribution: temurin
-          cache: maven
+          java-version: '21'      # Matches your project Java version
+          distribution: 'graalvm' # Or 'mandrel' for the Red Hat build
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
 
-      - name: Build
-        run: ./mvnw verify -B
+      # 3. Cache Maven/Gradle dependencies (Optional but recommended)
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # 4. Run the Native Build
+      # We use -Dquarkus.native.container-build=false because we 
+      # already installed GraalVM on the runner in Step 2.
+      - name: Build Native Executable
+        run: ./mvnw package -Dnative -DskipTests
+
+      # 5. Upload the resulting binary as an artifact
+      - name: Upload Native Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-executable
+          path: target/*-runner
+        
+        
