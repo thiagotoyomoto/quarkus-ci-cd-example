@@ -41,6 +41,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }} 
+          SONAR_ORGANIZATION_KEY: ${{ vars.SONAR_ORGANIZATION_KEY }}
+          SONAR_URL: ${{ vars.SONAR_URL }}
         run: |
           ./mvnw sonar:sonar \
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }} \
