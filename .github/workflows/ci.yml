@@ -95,14 +95,17 @@ jobs:
             type=sha,format=short
 
       # --- Publish Stage ---
-      - name: Build and push Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: src/main/docker/Dockerfile.native-distroless
-          push: true
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Push Docker image
+        run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} docker push {}
 
       - name: Upload Native Binary
         uses: actions/upload-artifact@v4
