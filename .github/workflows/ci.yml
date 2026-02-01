@@ -37,6 +37,9 @@ jobs:
       - name: Run Integration Tests
         run: ./mvnw verify -DskipUnitTests
 
+      - name: Generate CycloneDX SBOM
+        run: ./mvnw org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom
+
       - name: Send reports to SonarQube
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,6 +61,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -72,6 +76,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
           cache: 'maven'
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
 
       - name: Build Native Executable
         run: ./mvnw package -Dnative -DskipTests
@@ -95,17 +102,18 @@ jobs:
             type=sha,format=short
 
       # --- Publish Stage ---
-      - name: Build Docker image
+      - name: Build and Push Docker image
+        id: build-and-push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: src/main/docker/Dockerfile.native-distroless
-          load: true
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Push Docker image
-        run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} docker push {}
+      - name: Sign the published Docker image
+        run: cosign sign --yes "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}"
 
       - name: Upload Native Binary
         uses: actions/upload-artifact@v4
