@@ -1,3 +1,5 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=thiagotoyomoto-quarkus-ci-cd-example&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=thiagotoyomoto-quarkus-ci-cd-example) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=thiagotoyomoto-quarkus-ci-cd-example&metric=coverage)](https://sonarcloud.io/summary/new_code?id=thiagotoyomoto-quarkus-ci-cd-example) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=thiagotoyomoto-quarkus-ci-cd-example&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=thiagotoyomoto-quarkus-ci-cd-example)
+
 # quarkus-ci-cd-example
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
